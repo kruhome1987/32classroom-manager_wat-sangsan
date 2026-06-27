@@ -1,0 +1,6 @@
+{
+  "name": "Wat Sangsan 3-2 Classroom Manager",
+  "description": "ระบบจัดการห้องเรียนและเช็คชื่อรายวัน ชั้นประถมศึกษาปีที่ 3/2 โรงเรียนวัดแสงสรรค์ เชื่อมต่อ Google Sheets และส่งรายงานเข้ากลุ่ม LINE",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
