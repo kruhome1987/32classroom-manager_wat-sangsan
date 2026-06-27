@@ -25,13 +25,11 @@ export async function getFirebaseServices() {
     const { initializeApp, getApps } = await import('firebase/app');
     const { getAuth, GoogleAuthProvider } = await import('firebase/auth');
 
-    // Fetch the config file at runtime to avoid static build-time failures if missing
-    const configRes = await fetch('/firebase-applet-config.json');
-    if (!configRes.ok) {
+    // Load the config file directly using ES Modules dynamic import to avoid static build-time failures or runtime 404s
+    const firebaseConfig = await import('../firebase-applet-config.json').then(m => m.default);
+    if (!firebaseConfig) {
       return null;
     }
-
-    const firebaseConfig = await configRes.json();
     const apps = getApps();
     const app = apps.length > 0 ? apps[0] : initializeApp(firebaseConfig);
     const auth = getAuth(app);

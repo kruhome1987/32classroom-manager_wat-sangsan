@@ -185,47 +185,69 @@ export function generateDailyReportCard(
   ctx.lineTo(710, listY + 60);
   ctx.stroke();
 
-  // Compile lists
+  // Compile lists with full names (First Name + Last Name)
   const absents: string[] = [];
   const sicks: string[] = [];
   const lates: string[] = [];
 
   students.forEach(s => {
     const status = records[s.id];
-    if (status === 'absent') absents.push(`เลขที่ ${s.no} ${s.firstName}`);
-    if (status === 'sick') sicks.push(`เลขที่ ${s.no} ${s.firstName}`);
-    if (status === 'late') lates.push(`เลขที่ ${s.no} ${s.firstName}`);
+    if (status === 'absent') absents.push(`เลขที่ ${s.no} ${s.firstName} ${s.lastName}`);
+    if (status === 'sick') sicks.push(`เลขที่ ${s.no} ${s.firstName} ${s.lastName}`);
+    if (status === 'late') lates.push(`เลขที่ ${s.no} ${s.firstName} ${s.lastName}`);
   });
+
+  // Helper to wrap text nicely on the canvas
+  const drawWrappedText = (text: string, startX: number, startY: number, maxWidth: number, lineHeight: number): number => {
+    if (text === 'ไม่มี') {
+      ctx.fillText(text, startX, startY);
+      return startY;
+    }
+    const words = text.split(', ');
+    let line = '';
+    let currentY = startY;
+    
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + (line ? ', ' : '') + words[n];
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && n > 0) {
+        ctx.fillText(line + ',', startX, currentY);
+        line = words[n];
+        currentY += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, startX, currentY);
+    return currentY;
+  };
 
   let currentTextY = listY + 95;
   ctx.font = '18px "Inter", "Sarabun", sans-serif';
 
   // Render ขาดเรียน list
   ctx.fillStyle = '#EF4444';
-  const absentText = absents.length > 0 ? absents.join(', ') : 'ไม่มี';
   ctx.fillText(`• ขาดเรียน (${absents.length} คน):`, 90, currentTextY);
   ctx.fillStyle = '#334155';
-  ctx.fillText(absentText, 270, currentTextY);
-
-  currentTextY += 45;
+  const absentText = absents.length > 0 ? absents.join(', ') : 'ไม่มี';
+  const afterAbsentY = drawWrappedText(absentText, 270, currentTextY, 440, 26);
+  currentTextY = afterAbsentY + 40;
 
   // Render ลาป่วย list
   ctx.fillStyle = '#3B82F6';
-  const sickText = sicks.length > 0 ? sicks.join(', ') : 'ไม่มี';
   ctx.fillText(`• ลาป่วย (${sicks.length} คน):`, 90, currentTextY);
   ctx.fillStyle = '#334155';
-  ctx.fillText(sickText, 270, currentTextY);
-
-  currentTextY += 45;
+  const sickText = sicks.length > 0 ? sicks.join(', ') : 'ไม่มี';
+  const afterSickY = drawWrappedText(sickText, 270, currentTextY, 440, 26);
+  currentTextY = afterSickY + 40;
 
   // Render มาสาย list
   ctx.fillStyle = '#F59E0B';
-  const lateText = lates.length > 0 ? lates.join(', ') : 'ไม่มี';
   ctx.fillText(`• มาสาย (${lates.length} คน):`, 90, currentTextY);
   ctx.fillStyle = '#334155';
-  ctx.fillText(lateText, 270, currentTextY);
-
-  currentTextY += 45;
+  const lateText = lates.length > 0 ? lates.join(', ') : 'ไม่มี';
+  const afterLateY = drawWrappedText(lateText, 270, currentTextY, 440, 26);
+  currentTextY = afterLateY + 38;
 
   // Total Summary Row
   ctx.fillStyle = '#475569';
